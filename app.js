@@ -266,7 +266,7 @@
       return el("div", { class: "q" }, [
         el("div", { class: "label", text: task.question }),
         el("div", { class: "opts", role: "radiogroup", "aria-label": task.question }, buttons),
-        DEFS[task.key] ? el("details", { class: "help", open: "" }, [el("summary", { text: "Definitions" }), defsList(task)]) : null,
+        DEFS[task.key] ? el("details", { class: "help" }, [el("summary", { text: "Definitions" }), defsList(task)]) : null,
       ]);
     });
 
