@@ -61,7 +61,8 @@
     stance: {
       agree: "Supports, backs up, or adds to the point of the comment it replies to.",
       disagree: "Disputes, corrects, criticizes, or pushes back on the comment it replies to.",
-      neutral: "Neither: asks a question, changes the subject, or takes no clear side. If no earlier comment is shown and you can't tell, pick neutral.",
+      neutral: "Neither: asks a question, changes the subject, or takes no clear side.",
+      not_applicable: "Only the final comment is shown, so there's nothing for it to reply to.",
     },
     emotion: {
       joy: "Happiness, amusement, gratitude, love, or excitement.",
@@ -323,6 +324,10 @@
   script.src = "data/" + encodeURIComponent(raterId) + ".js";
   script.onload = function () {
     state.data = window.SCREENS;
+    // Stance can't apply when only the final comment is shown.
+    state.data.tasks.forEach(function (t) {
+      if (t.key === "stance" && t.options.indexOf("not_applicable") < 0) t.options.push("not_applicable");
+    });
     state.saved = loadLocal() || state.saved;
     state.saved.answers = state.saved.answers || {};
     state.saved.queue = state.saved.queue || [];
