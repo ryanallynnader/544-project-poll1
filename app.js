@@ -27,7 +27,6 @@
     current: {},            // selections on the current screen
     shownAt: 0,             // when the current screen appeared
     syncing: false,
-    breakShown: {},         // sessions whose break screen was already shown
   };
 
   // ------------------------------------------------------------ helpers
@@ -209,7 +208,7 @@
       el("div", { class: "card" }, [
         el("h2", { text: "How this works" }),
         el("p", { text: "Each screen shows a short Reddit conversation. Answer four questions about the FINAL comment only (highlighted). Earlier comments, if any, are there as context." }),
-        el("p", { text: "There are " + total + " screens in 4 sessions of " + (CFG.SCREENS_PER_SESSION || 50) + ". Do one session at a time, ideally on different days. Some comments come back later with different context; that's intended. Answer each screen on its own, without trying to match earlier answers." }),
+        el("p", { text: "There are " + total + " screens. Your progress saves as you go, so you can close the page and pick up where you left off. Some comments come back later with different context; that's intended. Answer each screen on its own, without trying to match earlier answers." }),
         el("p", { text: "Go with your own judgment. There are no right answers, and you can't go back to change earlier screens." }),
       ]),
       el("div", { class: "card" }, [
@@ -221,22 +220,6 @@
       el("div", { class: "actions" }, [
         el("span", { class: "muted", text: done ? (done + " of " + total + " done") : "" }),
         el("button", { class: "primary", text: done ? "Continue" : "Start", onclick: function () { state.index = firstUnanswered(); next(); } }),
-      ]),
-      footer()
-    );
-    setStatus();
-  }
-
-  function viewBreak(session) {
-    render(
-      el("h1", { text: "Session " + (session - 1) + " complete" }),
-      el("div", { class: "card" }, [
-        el("p", { text: "Nice work. Take a break here; ideally come back another day for session " + session + "." }),
-        el("p", { class: "muted", text: "Your progress is saved. Opening this same link later picks up here." }),
-      ]),
-      el("div", { class: "actions" }, [
-        el("span"),
-        el("button", { class: "primary", text: "Start session " + session, onclick: function () { state.breakShown[session] = true; next(); } }),
       ]),
       footer()
     );
@@ -257,8 +240,6 @@
 
   function viewScreen() {
     var screens = state.data.screens, s = screens[state.index];
-    var per = CFG.SCREENS_PER_SESSION || 50;
-    var inSession = s.order - (s.session - 1) * per;
     state.current = {};
     state.shownAt = Date.now();
 
@@ -292,8 +273,8 @@
     var pct = Math.round(100 * answeredCount() / screens.length);
     render(
       el("header", { class: "bar" }, [
-        el("strong", { text: "Session " + s.session + " of 4 · " + inSession + " / " + per }),
-        el("span", { class: "muted", text: raterId + " · " + answeredCount() + " / " + screens.length + " overall" }),
+        el("strong", { text: "Screen " + (state.index + 1) + " of " + screens.length }),
+        el("span", { class: "muted", text: raterId }),
       ]),
       el("div", { class: "progress" }, [el("div", { style: "width:" + pct + "%" })]),
       el("div", { class: "card scroll" }, turns),
@@ -326,12 +307,6 @@
   function next() {
     var screens = state.data.screens;
     if (state.index >= screens.length) return viewDone();
-    var s = screens[state.index];
-    // Break screen at the start of sessions 2-4 (once per visit).
-    if (s.session > 1 && !state.breakShown[s.session]) {
-      var prev = screens[state.index - 1];
-      if (prev && state.saved.answers[prev.screen_id] && prev.session < s.session) return viewBreak(s.session);
-    }
     viewScreen();
   }
 
