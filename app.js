@@ -214,7 +214,7 @@
       ]),
       el("div", { class: "card" }, [
         el("h2", { text: "What the answers mean" }),
-        el("p", { class: "muted", text: "Please read these once. You can reopen them on any screen with “What do these mean?”." }),
+        el("p", { class: "muted", text: "Please read these once. They're also shown under each question on every screen." }),
       ].concat(state.data.tasks.map(function (task) {
         return el("div", { class: "q" }, [el("div", { class: "label", text: task.question }), defsList(task)]);
       }))),
@@ -285,7 +285,7 @@
       return el("div", { class: "q" }, [
         el("div", { class: "label", text: task.question }),
         el("div", { class: "opts", role: "radiogroup", "aria-label": task.question }, buttons),
-        DEFS[task.key] ? el("details", { class: "help" }, [el("summary", { text: "What do these mean?" }), defsList(task)]) : null,
+        DEFS[task.key] ? el("div", { class: "help" }, [defsList(task)]) : null,
       ]);
     });
 
