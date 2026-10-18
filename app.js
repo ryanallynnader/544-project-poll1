@@ -48,6 +48,46 @@
     app.replaceChildren.apply(app, nodes);
   }
   function pretty(option) { return option.replace(/_/g, " "); }
+
+  // One-sentence definitions so every rater uses the same terms.
+  var DEFS = {
+    toxicity: {
+      toxic: "Rude, disrespectful, or hateful: insults, slurs, threats, harassment, or anything likely to make someone want to leave the conversation.",
+      not_toxic: "None of the above. Disagreement, criticism, or blunt or casual swearing alone is not toxic.",
+    },
+    sarcasm: {
+      sarcastic: "Says something it doesn't literally mean, usually the opposite, to mock or make a point (e.g. “Oh great, another Monday”).",
+      not_sarcastic: "Means what it says at face value.",
+    },
+    stance: {
+      agree: "Supports, backs up, or adds to the point of the comment it replies to.",
+      disagree: "Disputes, corrects, criticizes, or pushes back on the comment it replies to.",
+      neutral: "Neither: asks a question, changes the subject, or takes no clear side. If no earlier comment is shown and you can't tell, pick neutral.",
+    },
+    emotion: {
+      joy: "Happiness, amusement, gratitude, love, or excitement.",
+      anger: "Annoyance, frustration, irritation, or outrage.",
+      sadness: "Disappointment, grief, loneliness, hurt, or regret.",
+      fear: "Worry, anxiety, nervousness, or feeling threatened.",
+      surprise: "Shock, disbelief, or amazement (good or bad).",
+      disgust: "Revulsion or contempt toward someone or something, including moral disgust.",
+      neutral: "No clear emotion; factual, practical, or matter-of-fact.",
+    },
+  };
+  var DEF_NOTES = { emotion: "If several fit, pick the strongest one." };
+
+  function defsList(task) {
+    var defs = DEFS[task.key] || {};
+    var items = [];
+    task.options.forEach(function (opt) {
+      if (!defs[opt]) return;
+      items.push(el("dt", { text: pretty(opt) }));
+      items.push(el("dd", { text: defs[opt] }));
+    });
+    if (!items.length) return null;
+    var note = DEF_NOTES[task.key];
+    return el("div", {}, [el("dl", { class: "defs" }, items), note ? el("p", { class: "muted", text: note }) : null]);
+  }
   function answeredCount() { return Object.keys(state.saved.answers).length; }
   function firstUnanswered() {
     var s = state.data.screens;
@@ -172,6 +212,12 @@
         el("p", { text: "There are " + total + " screens in 4 sessions of " + (CFG.SCREENS_PER_SESSION || 50) + ". Do one session at a time, ideally on different days. Some comments come back later with different context; that's intended. Answer each screen on its own, without trying to match earlier answers." }),
         el("p", { text: "Go with your own judgment. There are no right answers, and you can't go back to change earlier screens." }),
       ]),
+      el("div", { class: "card" }, [
+        el("h2", { text: "What the answers mean" }),
+        el("p", { class: "muted", text: "Please read these once. You can reopen them on any screen with “What do these mean?”." }),
+      ].concat(state.data.tasks.map(function (task) {
+        return el("div", { class: "q" }, [el("div", { class: "label", text: task.question }), defsList(task)]);
+      }))),
       el("div", { class: "actions" }, [
         el("span", { class: "muted", text: done ? (done + " of " + total + " done") : "" }),
         el("button", { class: "primary", text: done ? "Continue" : "Start", onclick: function () { state.index = firstUnanswered(); next(); } }),
@@ -239,6 +285,7 @@
       return el("div", { class: "q" }, [
         el("div", { class: "label", text: task.question }),
         el("div", { class: "opts", role: "radiogroup", "aria-label": task.question }, buttons),
+        DEFS[task.key] ? el("details", { class: "help" }, [el("summary", { text: "What do these mean?" }), defsList(task)]) : null,
       ]);
     });
 

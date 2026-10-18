@@ -61,6 +61,12 @@
   .status.ok { color: var(--ok); } .status.warn { color: var(--warn); }
   ul.raters { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
   ul.raters a { display: block; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--card); text-decoration: none; text-align: center; }
+  details.help { margin-top: 6px; font-size: 0.9rem; }
+  details.help summary { color: var(--accent); cursor: pointer; width: fit-content; }
+  dl.defs { margin: 6px 0 4px; display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; font-size: 0.9rem; }
+  dl.defs dt { font-weight: 600; }
+  dl.defs dd { margin: 0; }
+  @media (max-width: 480px) { dl.defs { grid-template-columns: 1fr; } dl.defs dd { margin-bottom: 6px; } }
   .banner { padding: 10px 12px; border-radius: 8px; border: 1px solid var(--warn); color: var(--warn); font-size: 0.9rem; }
 </style>
 </head>
